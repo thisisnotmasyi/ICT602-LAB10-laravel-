@@ -7,305 +7,198 @@
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://poser.pugx.org/laravel/framework/license.svg" alt="License"></a>
 </p>
 
-## Snipped Code
+## Snipped Code for CRUD
 
-### Login function
+### Create
 ```
-try {
-      final GoogleSignInAccount? gUser = await GoogleSignIn().signIn();
-      final GoogleSignInAuthentication gAuth = await gUser!.authentication;
+@extends('layouts.app')
 
-      final credential = GoogleAuthProvider.credential(
-        accessToken: gAuth.accessToken,
-        idToken: gAuth.idToken,
-      );
+@section('content')
+<div class="row">
+    <div class="col-lg-12 margin-tb">
+        <div class="pull-left">
+            <h2>Add New Subject</h2>
+        </div>
 
-      await FirebaseAuth.instance.signInWithCredential(credential);
+    </div>
+</div>
 
-      Navigator.pushNamed(context, '/home');
-    } catch (error) {
-      print('Google Sign-In error: $error');
-    }
-  }
-```
+@if ($errors->any())
+    <div class="alert alert-danger">
+        <strong>Whoops!</strong> There were some problems with your input.<br><br>
+        <ul>
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
 
-### Login UI
-```
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Login Screen'),
-      ),
-      body: Container(
-        color: Color(0xFFF4FBFE),
-        padding: EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            TextField(
-              controller: emailController,
-              decoration: InputDecoration(
-                labelText: 'Email',
-                hintText: 'Enter your email',
-                prefixIcon: Icon(Icons.email),
-              ),
-            ),
-            SizedBox(height: 16.0),
+<form action="{{ route('subject.store') }}" method="POST">
+    @csrf
 
-            TextField(
-              controller: passwordController,
-              obscureText: true,
-              decoration: InputDecoration(
-                labelText: 'Password',
-                hintText: 'Enter your password',
-                prefixIcon: Icon(Icons.lock),
-              ),
-            ),
-            SizedBox(height: 24.0),
+     <div class="row">
+        <div class="col-xs-6 col-sm-6 col-md-12">
+            <div class="form-group">
+                <strong>Subject Code:</strong>
+                <input type="text" class="form-control" name="subject_code" placeholder="Subject_Code">
+            </div>
+        </div>
+        <div class="col-xs-6 col-sm-6 col-md-12">
+            <div class="form-group">
+                <strong>Subject Name:</strong>
+                <input type="text" class="form-control" name="subject_name" placeholder="Subject_Name">
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-12 text-center">
+                <button type="submit" class="btn btn-primary">Submit</button>
+                <a class="btn btn-primary" href="{{ route('subject.index') }}"> Back</a>
+        </div>
+    </div>
 
-            ElevatedButton(
-              onPressed: () {
-                signInWithEmailAndPassword(context);
-              }, 
-              child: Text('Login')
-            ),
-            SizedBox(height: 12.0),
-
-            ElevatedButton(
-              onPressed: () {
-                handleGoogleSignIn(context);
-              },
-              child: Row (
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Image.asset('lib/images/google.png', height: 24.0),
-                  SizedBox(width: 12.0),
-                  Text('Sign in with Google'),
-                ],
-              ),
-            ),
-            SizedBox(height: 12.0),
-
-            TextButton(
-              onPressed: () {
-                Navigator.pushNamed(context, '/register');
-              },
-              child: Text('Don\'t have an account? Register here'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-```
-
-### Register function
-```
- Future<void> createAccount(BuildContext context) async {
-    try {
-      UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
-        email: emailController.text,
-        password: passwordController.text,
-      );
-
-      print('User registered: ${userCredential.user?.email}');
-
-      Navigator.pushNamed(context, '/home');
-    } catch (error) {
-      print('Registration error: $error');
-    }
-  }
-```
-
-### Register UI
-```
- Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Register Screen'),
-      ),
-      body: Container(
-        color: Color(0xFFF4FBFE),
-        padding: EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            TextField(
-              controller: emailController,
-              decoration: InputDecoration(
-                labelText: 'Email',
-                hintText: 'Enter your email',
-                prefixIcon: Icon(Icons.email),
-              ),
-            ),
-            SizedBox(height: 16.0),
-
-            TextField(
-              controller: passwordController,
-              obscureText: true,
-              decoration: InputDecoration(
-                labelText: 'Password',
-                hintText: 'Enter your password',
-                prefixIcon: Icon(Icons.lock),
-              ),
-            ),
-            SizedBox(height: 24.0),
-
-            ElevatedButton(
-              onPressed: () {
-                createAccount(context);
-              },
-              child: Text('Register'),
-            ),
-            SizedBox(height: 12.0),
-            SizedBox(height: 12.0),
-
-            TextButton(
-              onPressed: () {
-                Navigator.pushNamed(context, '/login');
-              },
-              child: Text('Already have an account? Login here'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-```
-
-### Firebase options
-```
-// File generated by FlutterFire CLI.
-// ignore_for_file: lines_longer_than_80_chars, avoid_classes_with_only_static_members
-import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
-import 'package:flutter/foundation.dart'
-    show defaultTargetPlatform, kIsWeb, TargetPlatform;
-
-/// Default [FirebaseOptions] for use with your Firebase apps.
-///
-/// Example:
-/// ```dart
-/// import 'firebase_options.dart';
-/// // ...
-/// await Firebase.initializeApp(
-///   options: DefaultFirebaseOptions.currentPlatform,
-/// );
-/// ```
-class DefaultFirebaseOptions {
-  static FirebaseOptions get currentPlatform {
-    if (kIsWeb) {
-      throw UnsupportedError(
-        'DefaultFirebaseOptions have not been configured for web - '
-        'you can reconfigure this by running the FlutterFire CLI again.',
-      );
-    }
-    switch (defaultTargetPlatform) {
-      case TargetPlatform.android:
-        return android;
-      case TargetPlatform.iOS:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for ios - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
-      case TargetPlatform.macOS:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for macos - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
-      case TargetPlatform.windows:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for windows - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
-      case TargetPlatform.linux:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for linux - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
-      default:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions are not supported for this platform.',
-        );
-    }
-  }
-
-  static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyCLf99rtsOjgIw-WjQ8OlqPF5F_qxlDtiA',
-    appId: '1:650879931461:android:33c3a45b229fe89ac4ff2c',
-    messagingSenderId: '650879931461',
-    projectId: 'groupproject-a248b',
-    storageBucket: 'groupproject-a248b.appspot.com',
-  );
-}
+</form>
+@endsection
 
 ```
 
-### Home Page
+### Read / show
 ```
-import 'dart:convert';
-import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:google_sign_in/google_sign_in.dart';
+@extends('layouts.app')
 
-class HomeScreen extends StatefulWidget {
-  @override
-  _HomeScreenState createState() => _HomeScreenState();
-}
+@section('content')
+<div class="row">
+    <div class="col-lg-12 margin-tb">
+        <div class="pull-left">
+            <h2> Show Subjects Details</h2>
+        </div>
+    </div>
+</div>
 
-class _HomeScreenState extends State<HomeScreen> {
+<div class="row">
+    <div class="col-xs-12 col-sm-12 col-md-12">
+        <div class="form-group">
+            <strong>Subject Code:</strong>
+            {{ $subject->subject_code }}
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-12">
+        <div class="form-group">
+            <strong>Subject Name:</strong>
+            {{ $subject->subject_name }}
+        </div>
+    </div>
+    <div class="pull-right">
+            <a class="btn btn-primary" href="{{ route('subject.index') }}"> Back</a>
+    </div>
+</div>
 
-  @override
-  void initState() {
-    super.initState();
-    fetchData();
-  }
+@endsection
+```
 
-  Future<void> _revokeGoogleTokens() async {
-    final GoogleSignIn _googleSignIn = GoogleSignIn();
-    await _googleSignIn.signOut();
-  }
+### Edit
+```
+@extends('layouts.app')
 
-  Future<void> _logout(BuildContext context) async {
-    try {
-      // Sign out locally within your app
-      await FirebaseAuth.instance.signOut();
+@section('content')
+<div class="row">
+    <div class="col-lg-12 margin-tb">
+        <div class="pull-left">
+            <h2>Edit Subjects</h2>
+        </div>
+    </div>
+</div>
 
-      // Revoke Google tokens
-      await _revokeGoogleTokens();
+@if ($errors->any())
+    <div class="alert alert-danger">
+        <strong>Whoops!</strong> There were some problems with your input.<br><br>
+        <ul>
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
 
-      // Navigate back to the login screen
-      Navigator.pushReplacementNamed(context, '/login');
-    } catch (error) {
-      print('Logout error: $error');
-    }
-  }
+<form action="{{ route('subject.update',$subject->id) }}" method="POST">
+    @csrf
+    @method('PUT')
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Home Screen'),
-      ),
-      body: Center(
-        child: Container(
-          color: Color(0xFFF4FBFE), // Background color
-          padding: EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              ElevatedButton(
-                onPressed: () async {
-                  // Perform logout
-                  await _logout(context);
-                },
-                child: Text('Logout'),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
+     <div class="row">
+        <input type="hidden" name="id" value="{{ $subject->id }}"><br/>
 
+        <div class="col-xs-12 col-sm-12 col-md-12">
+            <div class="form-group">
+                <strong>Subject Code:</strong>
+                <input type="text" name="subject_code" value="{{ $subject->subject_code }}" class="form-control" placeholder="Subject_Code">
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-12">
+            <div class="form-group">
+                <strong>Subject Name:</strong>
+                <input type="text" class="form-control" name="subject_name" value="{{ $subject->subject_name }}" placeholder="Subject_Name">
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-12 text-center">
+          <button type="submit" class="btn btn-primary">Submit</button>
+            <a class="btn btn-primary" href="{{ route('subject.index') }}"> Back</a>
+        </div>
+    </div>
+
+</form>
+@endsection
+```
+
+### Delete
+```
+@extends('layouts.app')
+
+@section('content')
+<div class="row">
+    <div class="col-lg-12 margin-tb">
+        <div class="pull-left">
+            <h2>List of Subjects</h2>
+        </div>
+        <div class="pull-right">
+            <a class="btn btn-success" href="{{ route('subject.create') }}"> Add New Subject</a>
+        </div>
+    </div>
+</div>
+
+@if ($message = Session::get('success'))
+    <div class="alert alert-success">
+        <p>{{ $message }}</p>
+    </div>
+@endif
+
+<table class="table table-bordered">
+    <tr>
+        <th>No</th>
+        <th>Subject Code</th>
+        <th>Subject Name</th>
+        {{-- <th>Joined On</th> --}}
+        <th width="280px">Action</th>
+    </tr>
+    @foreach ($subject as $s)
+    <tr>
+        <td>{{ $s->id }}</td>
+        <td>{{ $s->subject_code }}</td>
+        <td>{{ $s->subject_name }}</td>
+        {{-- <td>{{ $s->created_at }}</td> --}}
+        <td>
+            <form action="{{ route('subject.destroy',$s->id) }}" method="POST">
+
+                <a class="btn btn-info" href="{{ route('subject.show',$s->id) }}">Show</a>
+
+                <a class="btn btn-primary" href="{{ route('subject.edit',$s->id) }}">Edit</a>
+
+                @csrf
+                @method('DELETE')
+
+                <button type="submit" class="btn btn-danger">Delete</button>
+            </form>
+        </td>
+    </tr>
+    @endforeach
+</table>
+@endsection
 ```
